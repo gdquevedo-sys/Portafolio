@@ -42,7 +42,7 @@ namespace Portafolio.Controllers
         }
 
         [HttpPost]
-        public IActionResult Contacto(ContactoViewModel ContactoViewModel)
+        public IActionResult Contacto(ContactoViewModel contactoViewModel)
         {
             return View();
         }
