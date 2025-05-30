@@ -2,8 +2,8 @@
 {
     public class ContactoViewModel
     {
-        public String Nombre { get; set; }
-        public String Email { get; set; }
-        public String Mensaje { get; set; }
+        public string Nombre { get; set; }
+        public string Email { get; set; }
+        public string Mensaje { get; set; }
     }
 }
