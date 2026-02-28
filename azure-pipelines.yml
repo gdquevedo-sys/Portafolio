@@ -19,7 +19,7 @@ steps:
 
 - task: UseDotNet@2
   displayName: 'Instalar .NET 6'
-  inputs: 
+  inputs:
     packageType: 'sdk'
     version: '6.0.x'
 
@@ -35,10 +35,9 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: $(proyecto)
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) --runtime win-x64 --self-contained'
+    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) --runtime win-x86 --self-contained'
     zipAfterPublish: false
     modifyOutputPath: false
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publicand los artefactos'
-
+  displayName: 'Publicando los artefactos'
