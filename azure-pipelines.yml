@@ -1,0 +1,40 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest' # Usa la imagen más reciente disponible
+
+variables:
+  solution: '**/*.sln'
+  proyecto: '**/*.csproj'
+  buildConfiguration: 'Release'
+
+steps:
+# 1. Instalar el SDK correcto para tu proyecto (.NET 9)
+- task: UseDotNet@2
+  displayName: 'Instalar .NET SDK 9.x'
+  inputs:
+    packageType: 'sdk'
+    version: '9.x'
+
+# 2. Publicar el proyecto
+# Nota: "publish" hace implícitamente el restore y el build, no necesitas pasos extra.
+- task: DotNetCoreCLI@2
+  displayName: 'Generando artefactos (.NET 9)'
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '$(proyecto)'
+    # Eliminé --self-contained si el servidor ya tiene el runtime de .NET 9. 
+    # Si NO lo tiene, agrégalo de nuevo al final de arguments.
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --runtime win-x64'
+    zipAfterPublish: true # Es mejor que esté en ZIP para que el "PublishBuildArtifacts" sea más rápido
+    modifyOutputPath: false
+
+# 3. Subir el artefacto a Azure DevOps
+- task: PublishBuildArtifacts@1
+  displayName: 'Subir artefactos a la plataforma'
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
