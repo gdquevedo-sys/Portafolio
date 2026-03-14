@@ -1,17 +1,3 @@
-# ASP.NET Core (.NET Framework)
-- task: AzureRmWebAppDeployment@5
-  inputs:
-    ConnectionType: 'AzureRM'
-    azureSubscription: 'Azure subscription 1(762f4a76-192a-4a6e-af5b-ae87ab29bd90)'
-    appType: 'webApp'
-    WebAppName: 'PortafolioGustavoDelgado'
-    deployToSlotOrASE: true
-    SlotName: 'production'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
 - main
 
@@ -24,33 +10,54 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
-steps:
+stages:
+- stage: Build
+  displayName: "Compilación"
+  jobs:
+  - job: BuildJob
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Instalar .NET SDK 9.x'
+      inputs:
+        packageType: 'sdk'
+        version: '9.x'
 
-- task: UseDotNet@2
-  displayName: 'Instalar .NET SDK 9.x'
-  inputs:
-    packageType: 'sdk'
-    version: '9.x'
+    - task: NuGetToolInstaller@1
 
-- task: NuGetToolInstaller@1
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
+    - task: DotNetCoreCLI@2
+      displayName: 'Construyendo los artefactos...'
+      inputs:
+        command: 'publish'
+        publishWebProjects: false
+        projects: '$(proyecto)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --runtime win-x64'
+        zipAfterPublish: true
+        modifyOutputPath: false
 
-- task: DotNetCoreCLI@2
-  displayName: 'Construyendo los artefactos...'
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: $(proyecto)
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory) --runtime win-x64'
-    zipAfterPublish: true
-    modifyOutputPath: false
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publicando los artefactos'
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publicando los artefactos'
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+- stage: Deploy
+  displayName: "Despliegue"
+  dependsOn: Build
+  jobs:
+  - job: DeployJob
+    steps:
+    - task: AzureRmWebAppDeployment@5
+      displayName: 'Desplegar a Azure WebApp'
+      inputs:
+        ConnectionType: 'AzureRM'
+        azureSubscription: 'Azure subscription 1(762f4a76-192a-4a6e-af5b-ae87ab29bd90)'
+        appType: 'webApp'
+        WebAppName: 'PortafolioGustavoDelgado'
+        deployToSlotOrASE: true
+        SlotName: 'production'
+        packageForLinux: '$(Pipeline.Workspace)/drop/**/*.zip'
