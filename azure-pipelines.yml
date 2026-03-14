@@ -1,4 +1,14 @@
 trigger:
+- task: AzureRmWebAppDeployment@5
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'Azure subscription 1(762f4a76-192a-4a6e-af5b-ae87ab29bd90)'
+    appType: 'webApp'
+    WebAppName: 'PortafolioGustavoDelgado'
+    deployToSlotOrASE: true
+    ResourceGroupName: 'Portafolios'
+    SlotName: 'production'
+    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
 - main
 
 pool:
