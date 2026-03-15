@@ -48,5 +48,5 @@ stages:
       displayName: 'Desplegar en Azure App Service'
       inputs:
         azureSubscription: 'gdquevedo-sys'
-        appName: ''
+        appName: 'PortafolioGustavoDelgado'
         package: '$(Pipeline.Workspace)/drop/**/*.zip'
