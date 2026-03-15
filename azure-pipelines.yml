@@ -1,50 +1,38 @@
-
-trigger:
-- main
-
-pool:
-  vmImage: 'windows-2022'
-
-variables:
-  solution: '**/*.sln'
-  proyecto: '**/*.csproj'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Release'
-
 stages:
-  - stage: Build
-    jobs:
-    - job: BuildJob
-      steps:
-        - task: UseDotNet@2  
-          inputs:
-            packageType: 'sdk'
-            version: '9.0.x'
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '9.0.x'
 
-- task: NuGetToolInstaller@1
+    - task: NuGetToolInstaller@1
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publicar artefactos...'
-  inputs:
-    command: 'publish'    
-    projects: $(proyecto)
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: true    
+    - task: DotNetCoreCLI@2
+      displayName: 'Publicar artefactos...'
+      inputs:
+        command: 'publish'
+        projects: '$(proyecto)'
+        arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: 'drop'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'drop'
 
--stage: Deploy
+- stage: Deploy
   dependsOn: Build
   jobs:
+  - job: DeployJob
     steps:
-    -task: AzureWebApp@1
+    - task: AzureWebApp@1
       displayName: 'Desplegar en Azure App Service'
       inputs:
         azureSubscription: 'gdquevedo-sys'
