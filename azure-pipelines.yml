@@ -35,6 +35,6 @@ stages:
     - task: AzureWebApp@1
       displayName: 'Desplegar en Azure App Service'
       inputs:
-        azureSubscription: 'Azure subscription 1'
+        azureSubscription: 'Azure subscription 1(762f4a76-192a-4a6e-af5b-ae87ab29bd90)'
         appName: 'PortafolioGustavoDelgado'
         package: '$(Pipeline.Workspace)/drop/**/*.zip'
