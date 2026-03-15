@@ -35,6 +35,6 @@ stages:
     - task: AzureWebApp@1
       displayName: 'Desplegar en Azure App Service'
       inputs:
-        azureSubscription: 'gdquevedo-sys'
+        azureSubscription: 'Azure subscription 1'
         appName: 'PortafolioGustavoDelgado'
         package: '$(Pipeline.Workspace)/drop/**/*.zip'
